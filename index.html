@@ -42,59 +42,18 @@
 </div>
 
 <script>
-let provider;
-let signer;
-let userAddress;
-const brldPriceETH = 0.001; // prix d'un BRLD en ETH
-const brldWallet = "0x5D7Cf964e1192f02e9Ba2C4B700336f3e298Ba3c"; // ton wallet public
-
-// Connexion MetaMask
-document.getElementById("connect").onclick = async () => {
+document.getElementById("connect").onclick = () => {
   if(window.ethereum){
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    signer = provider.getSigner();
-    userAddress = await signer.getAddress();
-    document.getElementById("wallet").innerText = `Wallet connecté : ${userAddress}`;
-    updateTotal();
+    alert("MetaMask détecté !");
   } else {
-    alert("Installe MetaMask pour utiliser ce site !");
-  }
-};
-
-// Calcul du total
-const updateTotal = () => {
-  const amount = document.getElementById("amount").value;
-  const total = amount && amount > 0 ? (amount * brldPriceETH).toFixed(6) : 0;
-  document.getElementById("total").innerText = `${total} ETH`;
-};
-
-document.getElementById("amount").addEventListener("input", updateTotal);
-
-// Acheter BRLD
-document.getElementById("buy").onclick = async () => {
-  const amountBRLD = document.getElementById("amount").value;
-  if(!signer){ alert("Connecte ton wallet d'abord !"); return; }
-  if(!amountBRLD || amountBRLD <= 0){ alert("Indique un nombre valide de BRLD !"); return; }
-
-  const totalETH = (amountBRLD * brldPriceETH).toFixed(6);
-  const tx = { to: brldWallet, value: ethers.utils.parseEther(totalETH.toString()) };
-
-  try {
-    const transaction = await signer.sendTransaction(tx);
-    document.getElementById("status").innerText = 
-      `Transaction envoyée !\nTx Hash: ${transaction.hash}\nEnvoie maintenant ${amountBRLD} BRLD à ${userAddress}`;
-    await transaction.wait();
-    alert("Paiement confirmé ! Envoie les BRLD manuellement.");
-  } catch(e){
-    console.error(e);
-    alert("Erreur lors du paiement. Vérifie ton wallet et réessaie.");
+    alert("MetaMask non détecté !");
   }
 };
 </script>
 
 </body>
 </html>
+
 
 
 
