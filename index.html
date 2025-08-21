@@ -6,65 +6,87 @@
   <title>BRLD - Acheter votre crypto</title>
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
   <style>
-    body { font-family: Arial; background:#121212; color:white; text-align:center; padding:30px; }
-    button { background:#ffcc00; border:none; padding:15px 30px; font-size:16px; cursor:pointer; margin:10px; }
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background:#121212; color:white; text-align:center; padding:30px; 
+    }
+    h1 { color:#ffcc00; }
+    button { 
+      background:#ffcc00; border:none; padding:15px 30px; font-size:16px; 
+      cursor:pointer; margin:10px; border-radius:8px; transition:0.3s; 
+    }
     button:hover { background:#e6b800; }
-    input { padding:10px; margin:10px 0; width:80%; font-size:16px; }
-    #status { margin-top:20px; font-weight:bold; color:#ffcc00; }
+    input { 
+      padding:10px; margin:10px 0; width:80%; max-width:300px; font-size:16px; border-radius:5px; border:none; 
+    }
+    #status { margin-top:20px; font-weight:bold; color:#ffcc00; white-space:pre-line; }
+    .container { max-width:500px; margin:auto; }
+    p { margin:10px 0; }
   </style>
 </head>
 <body>
 
-<h1>BRLD - Acheter votre crypto</h1>
-<p>Connectez votre wallet MetaMask et achetez des BRLD</p>
+<div class="container">
+  <h1>BRLD - Acheter votre crypto</h1>
+  <p>Connectez votre wallet MetaMask pour acheter des BRLD</p>
 
-<button id="connect">Connecter MetaMask</button>
-<br>
-<input type="text" id="amount" placeholder="Nombre de BRLD à acheter">
-<br>
-<button id="buy">Acheter BRLD</button>
+  <button id="connect">Connecter MetaMask</button>
+  <p id="wallet">Wallet non connecté</p>
 
-<p id="status"></p>
+  <input type="number" id="amount" placeholder="Nombre de BRLD à acheter" min="1">
+  <p>Total à payer: <span id="total">0 ETH</span></p>
+
+  <button id="buy">Acheter BRLD</button>
+
+  <p id="status"></p>
+</div>
 
 <script>
 let provider;
 let signer;
 let userAddress;
-
 const brldPriceETH = 0.001; // prix d'un BRLD en ETH
-const brldWallet = "T0x5D7Cf964e1192f02e9Ba2C4B700336f3e298Ba3c"; // ton wallet public qui reçoit les paiements
+const brldWallet = "TON_ADRESSE_BRLD_ICI"; // ton wallet public
 
 // Connexion MetaMask
 document.getElementById("connect").onclick = async () => {
-  if (window.ethereum) {
+  if(window.ethereum){
     provider = new ethers.providers.Web3Provider(window.ethereum);
     await provider.send("eth_requestAccounts", []);
     signer = provider.getSigner();
     userAddress = await signer.getAddress();
-    document.getElementById("status").innerText = `Wallet connecté : ${userAddress}`;
+    document.getElementById("wallet").innerText = `Wallet connecté : ${userAddress}`;
+    updateTotal();
   } else {
     alert("Installe MetaMask pour utiliser ce site !");
   }
 };
 
-// Acheter BRLD (paiement ETH)
+// Calcul du total
+const updateTotal = () => {
+  const amount = document.getElementById("amount").value;
+  const total = amount && amount > 0 ? (amount * brldPriceETH).toFixed(6) : 0;
+  document.getElementById("total").innerText = `${total} ETH`;
+};
+
+document.getElementById("amount").addEventListener("input", updateTotal);
+
+// Acheter BRLD
 document.getElementById("buy").onclick = async () => {
   const amountBRLD = document.getElementById("amount").value;
   if(!signer){ alert("Connecte ton wallet d'abord !"); return; }
-  if(!amountBRLD || isNaN(amountBRLD) || amountBRLD <= 0){ alert("Indique un nombre valide de BRLD !"); return; }
+  if(!amountBRLD || amountBRLD <= 0){ alert("Indique un nombre valide de BRLD !"); return; }
 
   const totalETH = (amountBRLD * brldPriceETH).toFixed(6);
-  const tx = {
-    to: brldWallet,
-    value: ethers.utils.parseEther(totalETH.toString())
-  };
+  const tx = { to: brldWallet, value: ethers.utils.parseEther(totalETH.toString()) };
 
   try {
     const transaction = await signer.sendTransaction(tx);
-    document.getElementById("status").innerText = `Transaction envoyée ! Tx Hash: ${transaction.hash}\nEnvoie maintenant ${amountBRLD} BRLD à ${userAddress}`;
+    document.getElementById("status").innerText = 
+      `Transaction envoyée !\nTx Hash: ${transaction.hash}\nEnvoie maintenant ${amountBRLD} BRLD à ${userAddress}`;
     await transaction.wait();
     alert("Paiement confirmé ! Envoie les BRLD manuellement.");
-  } catch(e) {
+  } catch(e){
     console.error(e);
     alert("Erreur lors du paiement. Vérifie ton wallet et réessaie.");
   }
@@ -73,6 +95,8 @@ document.getElementById("buy").onclick = async () => {
 
 </body>
 </html>
+
+
 
 
 
