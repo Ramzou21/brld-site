@@ -1,58 +1,38 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BRLD - Acheter votre crypto</title>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-  <style>
-    body { 
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-      background:#121212; color:white; text-align:center; padding:30px; 
-    }
-    h1 { color:#ffcc00; }
-    button { 
-      background:#ffcc00; border:none; padding:15px 30px; font-size:16px; 
-      cursor:pointer; margin:10px; border-radius:8px; transition:0.3s; 
-    }
-    button:hover { background:#e6b800; }
-    input { 
-      padding:10px; margin:10px 0; width:80%; max-width:300px; font-size:16px; border-radius:5px; border:none; 
-    }
-    #status { margin-top:20px; font-weight:bold; color:#ffcc00; white-space:pre-line; }
-    .container { max-width:500px; margin:auto; }
-    p { margin:10px 0; }
-  </style>
+<meta charset="UTF-8">
+<title>Test MetaMask</title>
 </head>
 <body>
 
-<div class="container">
-  <h1>BRLD - Acheter votre crypto</h1>
-  <p>Connectez votre wallet MetaMask pour acheter des BRLD</p>
+<button id="connect">Connecter MetaMask</button>
+<p id="wallet">Wallet non connecté</p>
 
-  <button id="connect">Connecter MetaMask</button>
-  <p id="wallet">Wallet non connecté</p>
-
-  <input type="number" id="amount" placeholder="Nombre de BRLD à acheter" min="1">
-  <p>Total à payer: <span id="total">0 ETH</span></p>
-
-  <button id="buy">Acheter BRLD</button>
-
-  <p id="status"></p>
-</div>
-
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
 <script>
-document.getElementById("connect").onclick = () => {
-  if(window.ethereum){
-    alert("MetaMask détecté !");
-  } else {
-    alert("MetaMask non détecté !");
+let provider;
+let signer;
+let userAddress;
+
+document.getElementById("connect").onclick = async () => {
+  try {
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    signer = provider.getSigner();
+    userAddress = await signer.getAddress();
+    document.getElementById("wallet").innerText = `Wallet connecté : ${userAddress}`;
+  } catch(e){
+    console.error(e);
+    alert("Erreur lors de la connexion au wallet !");
   }
 };
 </script>
 
 </body>
 </html>
+
+
 
 
 
